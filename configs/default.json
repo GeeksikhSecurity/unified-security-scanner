@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "tools": {
+    "truffleHog": {
+      "enabled": true,
+      "exclude": ["**/test-fixtures/**", "**/examples/**"]
+    },
+    "semgrep": {
+      "enabled": true,
+      "rules": []
+    },
+    "customScanners": {
+      "enabled": true,
+      "modules": []
+    }
+  },
+  "scan": {
+    "target": ".",
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.git/**",
+      "**/coverage/**"
+    ],
+    "includeTests": false,
+    "maxFileSize": 10485760,
+    "maxDepth": 50,
+    "followSymlinks": false
+  },
+  "falsePositives": {
+    "excludeTestFiles": true,
+    "excludeStorybook": true,
+    "patterns": []
+  },
+  "output": {
+    "formats": ["terminal"],
+    "dir": "./reports",
+    "verbose": false,
+    "quiet": false
+  },
+  "severity": {
+    "threshold": "LOW",
+    "failOn": ["CRITICAL", "HIGH"]
+  },
+  "performance": {
+    "parallelWorkers": 4,
+    "cacheEnabled": true,
+    "incrementalScan": false
+  }
+}

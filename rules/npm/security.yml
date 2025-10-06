@@ -1,0 +1,61 @@
+rules:
+  - id: npm-postinstall-network-request
+    patterns:
+      - pattern-inside: |
+          {
+            "scripts": {
+              ...
+              "postinstall": "$SCRIPT",
+              ...
+            }
+          }
+      - metavariable-pattern:
+          metavariable: $SCRIPT
+          patterns:
+            - pattern-regex: .*(curl|wget|fetch|http|https).*
+    message: Suspicious postinstall script with network access
+    severity: ERROR
+    languages: [json]
+    metadata:
+      category: dependency
+
+  - id: npm-env-var-in-script
+    patterns:
+      - pattern-inside: |
+          {
+            "scripts": {
+              ...
+              "$NAME": "$SCRIPT",
+              ...
+            }
+          }
+      - metavariable-pattern:
+          metavariable: $SCRIPT
+          patterns:
+            - pattern-regex: .*\$\{?npm_.*\}?.*
+    message: npm environment variable access in script - potential data leak
+    severity: WARNING
+    languages: [json]
+    metadata:
+      category: other
+
+  - id: npm-eval-in-script
+    patterns:
+      - pattern-inside: |
+          {
+            "scripts": {
+              ...
+              "$NAME": "$SCRIPT",
+              ...
+            }
+          }
+      - metavariable-pattern:
+          metavariable: $SCRIPT
+          patterns:
+            - pattern-regex: .*eval\s*\(.*
+    message: Use of eval() in npm script - code injection risk
+    severity: ERROR
+    languages: [json]
+    metadata:
+      cwe: CWE-94
+      category: injection

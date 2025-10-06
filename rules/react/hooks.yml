@@ -1,0 +1,92 @@
+rules:
+  - id: react-hardcoded-api-key-in-hook
+    patterns:
+      - pattern: |
+          const $HOOK = () => {
+            ...
+            const $KEY = "$VALUE";
+            ...
+          }
+      - metavariable-pattern:
+          metavariable: $KEY
+          patterns:
+            - pattern-regex: .*(API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL).*
+      - metavariable-pattern:
+          metavariable: $VALUE
+          patterns:
+            - pattern-regex: .{20,}
+    message: Hardcoded credential detected in React hook
+    severity: ERROR
+    languages: [typescript, javascript]
+    metadata:
+      cwe: CWE-798
+      owasp: A07:2021
+      category: secrets
+
+  - id: react-unsafe-useeffect-deps
+    patterns:
+      - pattern: |
+          useEffect(() => {
+            ...
+            $FUNC($VAR)
+            ...
+          }, [])
+      - metavariable-pattern:
+          metavariable: $VAR
+          patterns:
+            - pattern-not: $CONST
+    message: useEffect has missing dependencies - can cause stale closure bugs
+    severity: WARNING
+    languages: [typescript, javascript]
+    metadata:
+      category: other
+
+  - id: react-dangerous-html-user-input
+    patterns:
+      - pattern: |
+          <$EL dangerouslySetInnerHTML={{__html: $INPUT}} />
+      - metavariable-pattern:
+          metavariable: $INPUT
+          patterns:
+            - pattern-not: DOMPurify.sanitize(...)
+    message: Unsafe use of dangerouslySetInnerHTML without sanitization
+    severity: ERROR
+    languages: [typescript, javascript]
+    metadata:
+      cwe: CWE-79
+      owasp: A03:2021
+      category: injection
+
+  - id: react-localstorage-sensitive-data
+    patterns:
+      - pattern: |
+          localStorage.setItem($KEY, $VALUE)
+      - metavariable-pattern:
+          metavariable: $KEY
+          patterns:
+            - pattern-regex: .*(token|jwt|session|auth|password|secret).*
+    message: Storing sensitive data in localStorage - use secure alternatives
+    severity: WARNING
+    languages: [typescript, javascript]
+    metadata:
+      cwe: CWE-922
+      category: auth
+
+  - id: react-context-api-secret-exposure
+    patterns:
+      - pattern: |
+          const $CTX = createContext({
+            ...
+            $KEY: "$VALUE",
+            ...
+          })
+      - metavariable-pattern:
+          metavariable: $KEY
+          patterns:
+            - pattern-regex: .*(apiKey|secret|token|password).*
+    message: Hardcoded secrets in React Context - use environment variables
+    severity: ERROR
+    languages: [typescript, javascript]
+    metadata:
+      cwe: CWE-798
+      category: secrets
