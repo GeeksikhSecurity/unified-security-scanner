@@ -30,7 +30,7 @@ export class TruffleHogAdapter implements ScannerAdapter {
         config.scan.target,
         '--json',
         '--no-verification',
-        ...(config.tools.truffleHog.args || []),
+        ...(config.tools.truffleHog?.args || []),
       ];
 
       const proc = spawn('trufflehog', args);

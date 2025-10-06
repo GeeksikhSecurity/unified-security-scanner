@@ -33,12 +33,12 @@ export class SemgrepAdapter implements ScannerAdapter {
       ];
 
       // Add custom config if provided
-      if (config.tools.semgrep.config) {
+      if (config.tools.semgrep?.config) {
         args.push(`--config=${config.tools.semgrep.config}`);
       }
 
       // Add custom rules
-      for (const rule of config.tools.semgrep.rules || []) {
+      for (const rule of config.tools.semgrep?.rules || []) {
         args.push(`--config=${rule}`);
       }
 

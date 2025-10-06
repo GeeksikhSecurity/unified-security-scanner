@@ -46,7 +46,7 @@ export class FalsePositiveRuleEngine {
     this.customPatterns = config.falsePositives.patterns || [];
   }
 
-  async shouldSuppress(finding: Finding, config: ScanConfig): Promise<{
+  async shouldSuppress(finding: Finding, _config: ScanConfig): Promise<{
     suppress: boolean;
     reason?: string;
   }> {
