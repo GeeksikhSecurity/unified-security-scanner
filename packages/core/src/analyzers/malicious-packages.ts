@@ -96,8 +96,9 @@ export class MaliciousPackageScanner implements ScannerAdapter {
       for (const popularPkg of POPULAR_PACKAGES) {
         const distance = this.levenshteinDistance(depName, popularPkg);
 
-        // If names are similar but not exact (distance 1-2), flag as potential typosquatting
-        if (distance > 0 && distance <= 2) {
+        // If names are similar but not exact (distance 1), flag as potential typosquatting
+        // Threshold reduced from 2 to 1 to reduce false positives (e.g., jest→next)
+        if (distance > 0 && distance <= 1) {
           findings.push({
             id: randomUUID(),
             ruleId: 'malicious-typosquatting',

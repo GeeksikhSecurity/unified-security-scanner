@@ -4,8 +4,8 @@
  */
 
 import { spawn } from 'child_process';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { readFile, stat } from 'fs/promises';
+import { join, resolve, normalize } from 'path';
 import { randomUUID } from 'crypto';
 import type { ScannerAdapter, ScanConfig, Finding } from '../types.js';
 
@@ -67,6 +67,26 @@ const EOL_PACKAGES: Record<
     reason: 'In maintenance mode - consider modern alternatives',
   },
 };
+
+/**
+ * Validate and sanitize targetDir to prevent path traversal and command injection
+ */
+async function validateTargetDir(targetDir: string): Promise<string> {
+  // Normalize and resolve the path to prevent path traversal
+  const normalized = normalize(resolve(targetDir));
+
+  try {
+    // Check if path exists and is a directory
+    const stats = await stat(normalized);
+    if (!stats.isDirectory()) {
+      throw new Error('Target must be a directory');
+    }
+  } catch (error) {
+    throw new Error(`Invalid target directory: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  return normalized;
+}
 
 export class TechnicalDebtAnalyzer implements ScannerAdapter {
   name = 'technical-debt-analyzer';
@@ -149,10 +169,19 @@ export class TechnicalDebtAnalyzer implements ScannerAdapter {
   private async detectOutdatedPackages(targetDir: string, filePath: string): Promise<Finding[]> {
     const findings: Finding[] = [];
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
+      // Validate targetDir to prevent command injection
+      let validatedDir: string;
+      try {
+        validatedDir = await validateTargetDir(targetDir);
+      } catch (error) {
+        resolve([]);
+        return;
+      }
+
       const proc = spawn('npm', ['outdated', '--json'], {
-        cwd: targetDir,
-        shell: true,
+        cwd: validatedDir,
+        shell: false,
       });
 
       let output = '';
@@ -216,10 +245,19 @@ export class TechnicalDebtAnalyzer implements ScannerAdapter {
   private async detectVulnerabilities(targetDir: string, filePath: string): Promise<Finding[]> {
     const findings: Finding[] = [];
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
+      // Validate targetDir to prevent command injection
+      let validatedDir: string;
+      try {
+        validatedDir = await validateTargetDir(targetDir);
+      } catch (error) {
+        resolve([]);
+        return;
+      }
+
       const proc = spawn('npm', ['audit', '--json'], {
-        cwd: targetDir,
-        shell: true,
+        cwd: validatedDir,
+        shell: false,
       });
 
       let output = '';
