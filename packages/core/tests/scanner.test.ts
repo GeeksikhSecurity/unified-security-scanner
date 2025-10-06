@@ -2,9 +2,8 @@
  * Test suite for ScanOrchestrator
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { ScanOrchestrator } from '../src/orchestrator/scanner.js';
-import type { ScannerAdapter, ScanConfig, Finding } from '../src/types.js';
+import { ScanOrchestrator } from '../src/orchestrator/scanner';
+import type { ScannerAdapter, ScanConfig, Finding } from '../src/types';
 
 class MockAdapter implements ScannerAdapter {
   name = 'mock-adapter';
