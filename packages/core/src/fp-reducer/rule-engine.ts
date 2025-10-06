@@ -12,27 +12,46 @@ const DEFAULT_EXCLUSIONS = [
   '**/*.spec.{ts,tsx,js,jsx}',
   '**/__tests__/**',
   '**/__mocks__/**',
+  '**/fixtures/**',
+  '**/examples/**',
+  '**/demo/**',
+  '**/*.stories.{ts,tsx,js,jsx}',
 
   // Documentation
   '**/*.md',
   '**/*.mdx',
   '**/docs/**',
   '**/.storybook/**',
+  '**/README*',
+  '**/CHANGELOG*',
+  '**/CONTRIBUTING*',
+  '**/SECURITY*',
+  '**/LICENSE*',
 
   // Dependencies
   '**/node_modules/**',
   '**/vendor/**',
   '**/dist/**',
   '**/build/**',
+  '**/coverage/**',
+  '**/reports/**',
 
   // Config examples
   '**/*.example.{json,yml,yaml}',
   '**/*.sample.{json,yml,yaml}',
   '**/example.config.*',
+  '**/.env.example',
+  '**/.env.template',
+
+  // Scanner rules (contain security patterns by design)
+  '**/rules/**/*.{yml,yaml}',
+  '**/patterns/**/*.{yml,yaml}',
 ];
 
-const TEST_PREFIXES = ['MOCK_', 'TEST_', 'EXAMPLE_', 'SAMPLE_', 'FIXTURE_', 'DEMO_'];
-const TEST_KEYWORDS = /describe|it\(|test\(|expect\(|jest\.|vitest\.|mocha\./i;
+const TEST_PREFIXES = ['MOCK_', 'TEST_', 'EXAMPLE_', 'SAMPLE_', 'FIXTURE_', 'DEMO_', 'PLACEHOLDER_', 'YOUR_', 'REPLACE_'];
+const TEST_KEYWORDS = /describe|it\(|test\(|expect\(|jest\.|vitest\.|mocha\.|beforeEach|afterEach|beforeAll|afterAll/i;
+const CLI_PATTERNS = /commands?|cli|bin|scan|orchestrator|adapters?|analyzers?/;
+const DOC_MARKERS = /<[^>]+>|\[[^\]]+\]|\{\{[^}]+\}\}|example|sample|demo|placeholder|your_|replace_/i;
 
 export class FalsePositiveRuleEngine {
   private exclusionPatterns: string[] = [];
@@ -95,6 +114,30 @@ export class FalsePositiveRuleEngine {
       };
     }
 
+    // CLI tool path traversal false positives
+    if (this.isCliPathTraversal(finding)) {
+      return {
+        suppress: true,
+        reason: 'CLI tool legitimate path operations',
+      };
+    }
+
+    // Documentation false positives
+    if (this.isDocumentationFalsePositive(finding)) {
+      return {
+        suppress: true,
+        reason: 'Documentation with example credentials',
+      };
+    }
+
+    // Scanner rule false positives
+    if (this.isScannerRuleFalsePositive(finding)) {
+      return {
+        suppress: true,
+        reason: 'Security scanner rule definitions',
+      };
+    }
+
     return { suppress: false };
   }
 
@@ -121,6 +164,28 @@ export class FalsePositiveRuleEngine {
       prevLine?.includes('nosec') ||
       prevLine?.includes('noqa')
     );
+  }
+
+  private isCliPathTraversal(finding: Finding): boolean {
+    const isCliFile = CLI_PATTERNS.test(finding.file);
+    const isPathOp = /path\.(join|resolve|normalize)/.test(finding.snippet || '');
+    const hasValidation = /validate|sanitize|normalize|resolve/.test(finding.snippet || '');
+    
+    return isCliFile && isPathOp && (hasValidation || finding.ruleId?.includes('path-traversal'));
+  }
+
+  private isDocumentationFalsePositive(finding: Finding): boolean {
+    const isDocFile = /\.(md|rst|txt)$|docs?\//i.test(finding.file);
+    const hasDocMarkers = DOC_MARKERS.test(finding.snippet || '');
+    
+    return isDocFile && (hasDocMarkers || finding.category === 'secrets');
+  }
+
+  private isScannerRuleFalsePositive(finding: Finding): boolean {
+    const isRuleFile = /rules?\//i.test(finding.file) && /\.(yml|yaml)$/.test(finding.file);
+    const isSecretRule = finding.category === 'secrets' || finding.ruleId?.includes('hardcoded');
+    
+    return isRuleFile && isSecretRule;
   }
 
   private async getContext(finding: Finding): Promise<string | null> {

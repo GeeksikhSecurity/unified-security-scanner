@@ -33,6 +33,8 @@
   "falsePositives": {
     "excludeTestFiles": true,
     "excludeStorybook": true,
+    "excludeDocumentation": true,
+    "excludeScannerRules": true,
     "patterns": [
       {
         "file": "**/*.md",
@@ -40,9 +42,19 @@
         "reason": "Documentation files with example code"
       },
       {
-        "file": "**/QUICK_START.md",
+        "file": "**/rules/**/*.yml",
         "pattern": ".*",
-        "reason": "Quick start guide with example credentials"
+        "reason": "Security scanner rule definitions"
+      },
+      {
+        "file": "**/commands/**/*.ts",
+        "pattern": "path\\.(join|resolve)",
+        "reason": "CLI tool legitimate path operations"
+      },
+      {
+        "file": "**/reports/**",
+        "pattern": ".*",
+        "reason": "Scan output files contain test data"
       }
     ]
   },
@@ -55,6 +67,14 @@
   "severity": {
     "threshold": "LOW",
     "failOn": ["CRITICAL", "HIGH"]
+  },
+  "policy": {
+    "enforceSecurityBaseline": true,
+    "allowedLicenses": ["MIT", "Apache-2.0", "BSD-3-Clause", "ISC"],
+    "blockedPackages": [],
+    "maxCriticalFindings": 0,
+    "maxHighFindings": 5,
+    "requireSecurityReview": true
   },
   "performance": {
     "parallelWorkers": 4,

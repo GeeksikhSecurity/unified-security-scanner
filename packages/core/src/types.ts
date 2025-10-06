@@ -89,6 +89,13 @@ export interface ScanResult {
     cacheHitRate: number;
     incrementalScan: boolean;
   };
+
+  // Policy compliance
+  policy?: {
+    passed: boolean;
+    violations: string[];
+    recommendations: string[];
+  };
 }
 
 export interface ScanConfig {
@@ -137,6 +144,8 @@ export interface ScanConfig {
     }>;
     excludeTestFiles: boolean;
     excludeStorybook: boolean;
+    excludeDocumentation: boolean;
+    excludeScannerRules: boolean;
   };
 
   // Output configuration
@@ -151,6 +160,16 @@ export interface ScanConfig {
   severity: {
     threshold: Severity;
     failOn: Severity[];
+  };
+
+  // Security policy
+  policy?: {
+    enforceSecurityBaseline: boolean;
+    allowedLicenses: string[];
+    blockedPackages: string[];
+    maxCriticalFindings: number;
+    maxHighFindings: number;
+    requireSecurityReview: boolean;
   };
 
   // Performance tuning

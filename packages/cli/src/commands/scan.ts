@@ -124,21 +124,49 @@ export async function scanCommand(target: string, options: ScanOptions) {
     // Generate reports
     await generateReports(result, options);
 
+    // Enhanced result summary
+    const criticalCount = result.findings.filter(f => f.severity === 'CRITICAL').length;
+    const highCount = result.findings.filter(f => f.severity === 'HIGH').length;
+    
     // Check if should fail
     const shouldFail = checkFailCondition(result, options.failOn);
     if (shouldFail) {
-      console.error(
-        chalk.red(
-          `\n❌ Scan failed: Found issues matching fail-on criteria (${options.failOn})`
-        )
-      );
+      console.log(chalk.red('\n🚨 Build failed due to security policy violations'));
+      console.log(chalk.yellow('📋 Review findings above and apply fixes before proceeding'));
+      if (!options.verbose) {
+        console.log(chalk.gray('💡 Run with --verbose for detailed remediation guidance'));
+      }
       process.exit(1);
     }
 
     console.log(chalk.green('\n✅ Security scan passed'));
+    
+    if (result.suppressed && result.suppressed.length > 0) {
+      console.log(chalk.gray(`ℹ️  Suppressed ${result.suppressed.length} potential false positives`));
+    }
   } catch (error) {
     spinner.fail('Scan failed');
-    console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // Enhanced error reporting
+    if (errorMessage.includes('ENOENT')) {
+      console.error(chalk.red('❌ Target directory not found'));
+      console.error(chalk.yellow('💡 Tip: Ensure the target path exists and is accessible'));
+    } else if (errorMessage.includes('EACCES')) {
+      console.error(chalk.red('❌ Permission denied'));
+      console.error(chalk.yellow('💡 Tip: Check file permissions or run with appropriate privileges'));
+    } else if (errorMessage.includes('spawn')) {
+      console.error(chalk.red('❌ Required scanner tool not found'));
+      console.error(chalk.yellow('💡 Tip: Install TruffleHog and Semgrep, or disable them in config'));
+    } else {
+      console.error(chalk.red(`❌ ${errorMessage}`));
+    }
+    
+    if (options.verbose) {
+      console.error(chalk.gray('\n🔍 Full error details:'));
+      console.error(error);
+    }
+    
     process.exit(1);
   }
 }
@@ -232,13 +260,23 @@ function displayResults(result: ScanResult) {
     }
   }
 
-  // Suppressed findings
-  if (result.suppressed.length > 0) {
+  // Suppressed findings with details in verbose mode
+  if (result.suppressed && result.suppressed.length > 0) {
     console.log(
       chalk.gray(
         `\nℹ️  Suppressed ${result.suppressed.length} potential false positives`
       )
     );
+    
+    if (result.suppressed.length > 0 && process.env.VERBOSE) {
+      console.log(chalk.gray('\n📝 Suppressed findings:'));
+      for (const suppressed of result.suppressed.slice(0, 5)) {
+        console.log(chalk.gray(`  • ${suppressed.file}:${suppressed.line} - ${suppressed.suppressedBy}`));
+      }
+      if (result.suppressed.length > 5) {
+        console.log(chalk.gray(`  ... and ${result.suppressed.length - 5} more`));
+      }
+    }
   }
 }
 
