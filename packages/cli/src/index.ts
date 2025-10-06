@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Unified Security Scanner CLI
  */
