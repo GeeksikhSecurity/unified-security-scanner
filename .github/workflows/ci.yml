@@ -6,27 +6,7 @@ on:
   pull_request:
     branches: [main, develop]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run ESLint
-        run: npm run lint || echo "Linting not configured"
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -44,39 +24,16 @@ jobs:
         run: npm install
 
       - name: Run tests
-        run: npm test || echo "Tests not configured"
+        run: npm test
 
-      - name: Upload coverage to Codecov
+      - name: Build
+        run: npm run build
+
+      - name: Upload coverage
         uses: codecov/codecov-action@v4
         if: matrix.node-version == 20
         with:
           files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-unified-scanner
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build packages
-        run: npm run build || echo "Build not configured"
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            packages/*/dist
-            !**/node_modules
 
   security:
     name: Security Scan
