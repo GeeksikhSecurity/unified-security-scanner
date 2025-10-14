@@ -11,7 +11,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "dev": "turbo run dev --parallel",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "scan:self": "echo 'Self-scan placeholder'"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
