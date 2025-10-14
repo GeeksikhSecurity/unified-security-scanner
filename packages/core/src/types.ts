@@ -4,7 +4,7 @@
 
 export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 export type Category = 'secrets' | 'injection' | 'auth' | 'crypto' | 'dependency' | 'other';
-export type ScanSource = 'truffleHog' | 'semgrep' | 'custom-npm' | 'custom-react';
+export type ScanSource = 'truffleHog' | 'semgrep' | 'custom-npm' | 'custom-react' | 'custom-secrets';
 
 export interface Finding {
   // Identification

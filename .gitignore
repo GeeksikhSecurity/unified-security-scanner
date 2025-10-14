@@ -34,6 +34,12 @@ reports/
 *.sarif
 *.html
 
+# Test results
+test-results/
+test-results-v*/
+test-repos/
+test-algolia-example.js
+
 # Cache
 .turbo/
 .cache/

@@ -36,6 +36,12 @@ const DEFAULT_EXCLUSIONS = [
   '**/coverage/**',
   '**/reports/**',
 
+  // Package manager files (contain integrity hashes)
+  '**/yarn.lock',
+  '**/package-lock.json',
+  '**/pnpm-lock.yaml',
+  '**/composer.lock',
+
   // Config examples
   '**/*.example.{json,yml,yaml}',
   '**/*.sample.{json,yml,yaml}',
@@ -138,6 +144,22 @@ export class FalsePositiveRuleEngine {
       };
     }
 
+    // Package manager integrity hashes
+    if (this.isPackageManagerHash(finding)) {
+      return {
+        suppress: true,
+        reason: 'Package manager integrity hash',
+      };
+    }
+
+    // Legitimate public API keys (read-only)
+    if (await this.isLegitimatePublicApiKey(finding, context)) {
+      return {
+        suppress: true,
+        reason: 'Legitimate public/read-only API key',
+      };
+    }
+
     return { suppress: false };
   }
 
@@ -186,6 +208,67 @@ export class FalsePositiveRuleEngine {
     const isSecretRule = finding.category === 'secrets' || finding.ruleId?.includes('hardcoded');
     
     return isRuleFile && isSecretRule;
+  }
+
+  private isPackageManagerHash(finding: Finding): boolean {
+    const isLockFile = /\/(yarn\.lock|package-lock\.json|pnpm-lock\.yaml|composer\.lock)$/.test(finding.file);
+    const isIntegrityHash = /resolved.*\.tgz#[a-f0-9]{40}/.test(finding.snippet || '') ||
+                           /integrity.*sha[0-9]+-[A-Za-z0-9+/=]+/.test(finding.snippet || '') ||
+                           /"[a-f0-9]{40,64}"/.test(finding.snippet || '');
+    
+    return isLockFile && isIntegrityHash && finding.category === 'secrets';
+  }
+
+  private async isLegitimatePublicApiKey(finding: Finding, context: string | null): Promise<boolean> {
+    if (!context || finding.category !== 'secrets') return false;
+
+    // Known public/read-only API key patterns
+    const publicKeyPatterns = [
+      // Algolia public search keys (read-only)
+      { pattern: /algolia.*appId.*['"]([A-Z0-9]{10})['"].*apiKey.*['"]([a-f0-9]{32})['"]/, readOnly: true },
+      { pattern: /ALGOLIA.*APP_ID.*API_KEY/, readOnly: true },
+      
+      // Google Maps API (if restricted properly)
+      { pattern: /google.*maps.*api.*key/i, readOnly: false },
+      
+      // Stripe publishable keys (pk_)
+      { pattern: /pk_[a-zA-Z0-9]{24,}/, readOnly: true },
+      
+      // Firebase config (public)
+      { pattern: /firebase.*config.*apiKey/i, readOnly: true },
+    ];
+
+    // Check if this matches known public key patterns
+    for (const keyPattern of publicKeyPatterns) {
+      if (keyPattern.pattern.test(context) || keyPattern.pattern.test(finding.snippet)) {
+        // Additional context checks for legitimacy
+        const hasPublicMarkers = /public|client|frontend|browser|read.?only/i.test(context);
+        const hasConfigStructure = /const.*config|export.*config|\{[^}]*appId[^}]*apiKey[^}]*\}/i.test(context);
+        const isInPublicFile = /config|constants|settings/i.test(finding.file);
+        
+        // Algolia-specific validation
+        if (keyPattern.readOnly && (
+          hasPublicMarkers || 
+          hasConfigStructure || 
+          isInPublicFile ||
+          this.isAlgoliaSearchOnlyKey(finding.snippet, context)
+        )) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private isAlgoliaSearchOnlyKey(_snippet: string, context: string): boolean {
+    // Algolia search-only keys are safe for client-side use
+    const hasSearchOnlyUsage = /search|query|index/i.test(context) && 
+                              !/admin|write|delete|update/i.test(context);
+    const isClientConfig = /client|frontend|public/i.test(context);
+    const hasAppIdPattern = /appId.*['"]([A-Z0-9]{10})['"]/.test(context);
+    
+    return hasSearchOnlyUsage && (isClientConfig || hasAppIdPattern);
   }
 
   private async getContext(finding: Finding): Promise<string | null> {

@@ -147,6 +147,7 @@ export class ScanOrchestrator {
       semgrep: 0,
       'custom-npm': 0,
       'custom-react': 0,
+      'custom-secrets': 0,
     };
 
     for (const finding of findings) {

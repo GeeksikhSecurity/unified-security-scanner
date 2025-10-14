@@ -13,6 +13,7 @@ import {
   SemgrepAdapter,
   MaliciousPackageScanner,
   TechnicalDebtAnalyzer,
+  HardcodedSecretsAnalyzer,
   FalsePositiveRuleEngine,
   SarifReporter,
   JsonReporter,
@@ -88,6 +89,7 @@ export async function scanCommand(target: string, options: ScanOptions) {
       new SemgrepAdapter(),
       new MaliciousPackageScanner(),
       new TechnicalDebtAnalyzer(),
+      new HardcodedSecretsAnalyzer(),
     ];
 
     const orchestrator = new ScanOrchestrator(adapters);
