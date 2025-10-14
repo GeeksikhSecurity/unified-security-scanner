@@ -365,7 +365,7 @@ enhanced-scanner test --detect-flaky --monitor-days 7
 
 # Run with retry strategy
 enhanced-scanner scan --retry-flaky --max-retries 3
-
+https://youtu.be/d51iWUljHYM
 # Quarantine management
 enhanced-scanner quarantine --list
 enhanced-scanner quarantine --release test-name
