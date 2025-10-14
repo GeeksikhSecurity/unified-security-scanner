@@ -318,6 +318,79 @@ jobs:
 | **develop/staging** | Block | Block | Allow with comment | Allow |
 | **feature branches** | Comment | Comment | Comment | Allow |
 
+## 🧪 Test Reliability & Flaky Test Management
+
+### Flaky Test Detection
+```typescript
+// Automatic flaky test detection
+const flakyManager = new FlakyTestManager({
+  detection: {
+    enabled: true,
+    intraRunThreshold: 0.1,    // 10% failure rate within build
+    interRunThreshold: 0.2,    // 20% failure rate across builds
+    monitoringWindow: 7        // Track for 7 days
+  },
+  quarantine: {
+    enabled: true,
+    autoQuarantine: true,
+    maxQuarantineDays: 30
+  },
+  retry: {
+    enabled: true,
+    maxRetries: 3,
+    backoffMs: 1000,
+    selectiveRetry: true
+  }
+});
+```
+
+### Test Quality Assurance
+- **Self-checking**: Tests validate their own results
+- **Fast execution**: <30s per security test suite
+- **Isolated**: No dependencies between security tests
+- **Repeatable**: Consistent results across environments
+- **Quarantine system**: Flaky tests isolated from main builds
+- **Smart retries**: Selective retry for transient failures
+
+### Common Flakiness Causes in Security Scanning
+- **Timing issues**: Network timeouts, async operations
+- **Environment problems**: Resource constraints, version mismatches
+- **Infrastructure issues**: CI/CD environment instability
+- **Tool integration**: External security tool availability
+
+### Flaky Test Management Strategy
+```bash
+# Detect flaky security tests
+enhanced-scanner test --detect-flaky --monitor-days 7
+
+# Run with retry strategy
+enhanced-scanner scan --retry-flaky --max-retries 3
+
+# Quarantine management
+enhanced-scanner quarantine --list
+enhanced-scanner quarantine --release test-name
+```
+          npx @enhanced-scanner/cli scan \
+            --multi-phase \
+            --ai-validation \
+            --format sarif \
+            --output security-results.sarif
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-results.sarif
+```
+
+### Blocking Criteria
+| Branch Type | Critical | High | Medium | Low |
+|-------------|----------|------|--------|-----|
+| **main/production** | Block | Block | Block with approval | Allow |
+| **develop/staging** | Block | Block | Allow with comment | Allow |
+| **feature branches** | Comment | Comment | Comment | Allow |
+
 ## 📊 Performance & Validation
 
 ### Real-World Testing Results
