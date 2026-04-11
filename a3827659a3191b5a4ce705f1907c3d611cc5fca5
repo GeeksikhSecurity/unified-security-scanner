@@ -1,0 +1,23 @@
+src/sbom_ingestion/README.md
+  ed07446226207347 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "a3827659a3191b5a4ce705f1907c3d611cc5fca5",
+  "prompts": {
+    "ed07446226207347": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1ef95a12-dd08-4a19-a798-1bf6dbb64c7e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "GeeksikhSecurity",
+      "messages": [],
+      "total_additions": 68,
+      "total_deletions": 0,
+      "accepted_lines": 68,
+      "overriden_lines": 0
+    }
+  }
+}
