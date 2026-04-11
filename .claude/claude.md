@@ -3,21 +3,6 @@
 **Version:** 1.0
 **Last Updated:** November 11, 2025
 **Framework:** Ogawa Coffee-Inspired Documentation Methodology
-**Project:** [GeeksikhSecurity](https://github.com/GeeksikhSecurity)
-
----
-
-## Philosophy
-
-_"The best documentation is invisible—users accomplish their goals without realizing they consulted it."_
-
----
-
-## Executive Summary
-
-This framework establishes technical documentation standards that transform complex information into intuitive, user-friendly content. Inspired by the clarity and completeness of Ogawa Coffee's FAQ system (https://www.oc-ogawa.co.jp/contact/faq/) and the podcast episode "From Knowledge to Wisdom" by Luca Rossi, this approach ensures documentation works like a well-designed product—providing everything users need, with nothing missing.
-
-**Core Principle:** _"A documentation set should be like a complete gift - everything needed with no missing pieces"_
 
 ---
 
@@ -384,11 +369,6 @@ git commit -m "docs: [Enhancement type] using Ogawa Coffee methodology
 
 [Brief description of what was enhanced]
 
-## Philosophy
-
-\"The best documentation is invisible—users accomplish their goals
-without realizing they consulted it.\"
-
 ## Enhancements
 
 - **Four Facets**: [Data|Structure|Meaning|Context improvements]
@@ -403,11 +383,8 @@ without realizing they consulted it.\"
 
 ## Framework Applied
 
-Based on Ogawa Coffee FAQ excellence and \"From Knowledge to Wisdom\":
-- https://www.oc-ogawa.co.jp/contact/faq/
-- Luca Rossi's Knowledge → Skills → Wisdom framework
-
-Project: https://github.com/GeeksikhSecurity
+Based on Ogawa Coffee FAQ excellence:
+https://www.oc-ogawa.co.jp/contact/faq/
 
 🤖 Generated with Claude Code (https://claude.com/claude-code)
 
@@ -591,20 +568,199 @@ When users report documentation issues:
 
 ---
 
+## Advanced Documentation Techniques
+
+### Trail of Bits Documentation Principles
+
+Based on analysis of [Buttercup open-source release](https://blog.trailofbits.com/2025/08/08/buttercup-is-now-open-source/):
+
+#### 1. Progressive Disclosure Architecture
+
+**Pattern:** Announcement → Explanation → Implementation → Visualization → Future Direction
+
+**Implementation:**
+```markdown
+## [Feature Name]
+
+### What It Is (Announcement)
+[High-level overview in 2-3 sentences]
+
+### How It Works (Explanation)
+[Conceptual understanding with flowchart]
+
+### Getting Started (Implementation)
+[4-5 sequential commands with expected outcomes]
+
+### Visual Examples (Visualization)
+[Screenshots/diagrams showing actual states]
+
+### What's Next (Future Direction)
+[Roadmap and enhancement possibilities]
+```
+
+#### 2. Multiple Entry Points for Different Users
+
+**Address three audience types simultaneously:**
+
+| Audience | What They Need | How to Provide |
+|----------|----------------|----------------|
+| **Decision-makers** | Value proposition, achievements | Upfront highlights, competitive positioning |
+| **Developers** | Direct access, setup instructions | GitHub links, concrete commands, cost controls |
+| **Researchers** | Deep technical details, methodology | Component descriptions, academic rigor |
+
+**Example structure:**
+```markdown
+# [Tool Name]
+
+**For decision-makers:** [Achievement/value in 1 sentence + link]
+**For developers:** [Direct GitHub link + quick start command]
+**For researchers:** [Detailed methodology link]
+
+---
+
+## Overview
+[Full explanation accessible to all]
+```
+
+#### 3. Triple-Reinforcement Technique for Complex Concepts
+
+**Use three modes to explain difficult topics:**
+
+1. **Visual-first:** Flowchart or diagram showing data flow
+2. **Functional description:** Bullet points for each component's purpose
+3. **Narrative prose:** Sequential workflow description
+
+**Example:**
+
+```markdown
+### Security Scan Pipeline
+
+**Visual Overview:**
+\```text
+[ASCII flowchart showing component flow]
+\```
+
+**Component Functions:**
+- **Scanner Engine:** Analyzes code for vulnerabilities
+- **De-duplicator:** Removes duplicate findings
+- **Reporter:** Generates output in multiple formats
+
+**How It Works:**
+The pipeline starts with the Scanner Engine analyzing your codebase...
+[narrative description]
+```
+
+#### 4. Clarity Through Quantified Specificity
+
+**Always provide concrete numbers instead of vague descriptions:**
+
+❌ **Vague:** "Requires decent hardware"
+✅ **Specific:** "8 CPU cores, 16 GB RAM, 100 GB free disk"
+
+❌ **Vague:** "Fast performance"
+✅ **Specific:** "Less than 10 minutes to find and patch"
+
+❌ **Vague:** "Multiple AI agents"
+✅ **Specific:** "Seven distinct AI agents"
+
+**Implementation checklist:**
+
+- [ ] System requirements have exact numbers
+- [ ] Performance expectations are quantified
+- [ ] Complexity is bounded with specific counts
+- [ ] Time estimates are concrete (not "quick" but "5-10 min")
+
+#### 5. Transparent Limitation Documentation
+
+**Explicitly document what doesn't work or is deprecated:**
+
+```markdown
+## Known Limitations
+
+### [Feature/Version Name]
+
+**Status:** Not actively maintained
+**Why:** [Reason - e.g., "Designed for competition infrastructure, now shut down"]
+**Alternative:** [What to use instead]
+**Last working version:** [Version number if applicable]
+```
+
+**Benefits:**
+
+- Saves user time investigating dead ends
+- Builds trust through transparency
+- Prevents support tickets for unsupported features
+
+#### 6. Barrier-Removal Documentation
+
+**Emphasize accessibility over institutional assumptions:**
+
+❌ **Institutional assumption:** "Deploy to your Kubernetes cluster"
+✅ **Accessible:** "Runs on a typical laptop" + specific requirements
+
+**Pattern:**
+
+```markdown
+## System Requirements
+
+### Minimum (Laptop/Desktop)
+- [Specific requirements]
+- **Why this works:** [Explanation of how it's accessible]
+
+### Recommended (Production)
+- [Higher requirements]
+- **When to use:** [Scenarios requiring more resources]
+```
+
+#### 7. Visual-First Strategy for Workflows
+
+**For any multi-step process:**
+
+1. Start with visual representation (flowchart/diagram)
+2. Then provide step-by-step instructions
+3. Finally, explain edge cases
+
+**Template:**
+
+```markdown
+### [Process Name]
+
+**Visual Overview:**
+\```text
+[Step 1] → [Step 2] → [Step 3] → [Result]
+   ↓         ↓         ↓
+[Detail]  [Detail]  [Detail]
+\```
+
+**Steps:**
+1. [Action with expected outcome]
+2. [Action with expected outcome]
+
+**Edge Cases:**
+- **If [scenario]:** [What to do]
+```
+
+---
+
 ## References
 
 ### Primary Frameworks
 
 1. **Ogawa Coffee FAQ Excellence**
-   - URL: https://www.oc-ogawa.co.jp/contact/faq/
+   - URL: <https://www.oc-ogawa.co.jp/contact/faq/>
    - Principle: Complete Gift - Nothing Missing
    - Application: Anticipatory FAQ, multi-modal explanations
 
-2. **Skiller Whale Training Methodology**
+2. **Trail of Bits Documentation Standards**
+   - Example: <https://blog.trailofbits.com/2025/08/08/buttercup-is-now-open-source/>
+   - Principle: Progressive disclosure with multiple entry points
+   - Application: Triple-reinforcement, quantified specificity, transparent limitations
+
+3. **Skiller Whale Training Methodology**
    - Framework: Knowledge → Skills → Wisdom
    - Application: Progressive learning paths, role-based guidance
 
-3. **Technical Documentation Standards Framework**
+4. **Technical Documentation Standards Framework**
    - Author: G.S. | Cybersecurity & Documentation Specialist
    - Framework: Four Facets (Data, Structure, Meaning, Context)
    - Application: Complete documentation architecture

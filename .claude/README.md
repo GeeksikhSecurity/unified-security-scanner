@@ -1,12 +1,6 @@
 # Claude Configuration for Security Scanner Project
 
-**Project:** [GeeksikhSecurity](https://github.com/GeeksikhSecurity)
-
-_"The best documentation is invisible—users accomplish their goals without realizing they consulted it."_
-
 This directory contains custom rules, prompts, and settings for Claude Code to ensure consistent, high-quality documentation following the **Ogawa Coffee-Inspired Documentation Framework**.
-
-**Core Principle:** _"A documentation set should be like a complete gift - everything needed with no missing pieces"_
 
 ---
 
@@ -405,22 +399,7 @@ Track these metrics over time:
 
 ---
 
-## Philosophy in Practice
-
-Remember: _"The best documentation is invisible—users accomplish their goals without realizing they consulted it."_
-
-When your documentation achieves this state:
-- ✅ Users complete tasks without consulting external resources
-- ✅ Support tickets decrease significantly
-- ✅ Onboarding time drops by 50%+
-- ✅ Users report high satisfaction without remembering specific docs they read
-
-**This is the measure of success.**
-
----
-
 **Maintained by:** Security Scanner Documentation Team
-**Project:** [GeeksikhSecurity](https://github.com/GeeksikhSecurity)
 **Questions?** See [DOCUMENTATION_COMMIT_SUMMARY.md](../docs/DOCUMENTATION_COMMIT_SUMMARY.md)
 **Framework Version:** 1.0
 **Last Updated:** November 11, 2025
