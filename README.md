@@ -1,4 +1,6 @@
 # Enhanced Security Scanner v2.0
+
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/GeeksikhSecurity/unified-security-scanner/badge)](https://securityscorecards.dev/viewer/?uri=github.com/GeeksikhSecurity/unified-security-scanner) [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/GeeksikhSecurity/unified-security-scanner/security/policy)
 ## AI-Powered Multi-Phase Security Analysis
 
 > **Enterprise-grade security scanning with <5% false positive rate**  
