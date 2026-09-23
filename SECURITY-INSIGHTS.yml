@@ -2,7 +2,7 @@ header:
   schema-version: 2.1.0
   last-updated: '2026-09-23'
   last-reviewed: '2026-09-23'
-  expiration-date: '2027-09-23T00:00:00.000Z'
+  expiration-date: '2027-09-23'
   project-url: 'https://github.com/GeeksikhSecurity/unified-security-scanner'
   license: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/LICENSE'
 project-lifecycle:
@@ -25,18 +25,27 @@ security-artifacts:
 security-testing:
   - name: 'CodeQL'
     type: SAST
-    url: 'https://github.com/github/codeql-action'
     rulesets:
-      - default
+      - security-and-quality
+      - security-extended
     integration:
       adhoc: false
       ci: true
       release: false
     results: {}
-    comment: 'security-and-quality + security-extended query suites.'
+    comment: 'Tool homepage: https://github.com/github/codeql-action'
+  - name: 'Semgrep'
+    type: SAST
+    rulesets:
+      - default
+    integration:
+      adhoc: true
+      ci: true
+      release: false
+    results: {}
+    comment: 'Runs on push, PR, and a weekly schedule (Stage 1 of enhanced-security-scan.yml). Tool homepage: https://github.com/semgrep/semgrep'
   - name: 'OpenSSF Scorecard'
     type: other
-    url: 'https://github.com/ossf/scorecard'
     rulesets:
       - default
     integration:
@@ -44,7 +53,7 @@ security-testing:
       ci: true
       release: false
     results: {}
-    comment: 'Scorecard type is ''other'' — the security-insights-spec tool-type enum (SCA/SAST/container/secret/fuzzing/other) has no ''scorecard'' value.'
+    comment: 'Scorecard type is ''other'' — the security-insights-spec tool-type enum (SCA/SAST/container/secret/fuzzing/other) has no ''scorecard'' value. Tool homepage: https://github.com/ossf/scorecard'
 security-contacts:
   - type: email
     value: security@geeksikh.com
