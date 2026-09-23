@@ -47,11 +47,11 @@ security-testing:
     comment: 'Scorecard type is ''other'' — the security-insights-spec tool-type enum (SCA/SAST/container/secret/fuzzing/other) has no ''scorecard'' value.'
 security-contacts:
   - type: email
-    value: security@unified-scanner.dev
+    value: security@geeksikh.com
     primary: true
 vulnerability-reporting:
   accepts-vulnerability-reports: true
-  email-contact: security@unified-scanner.dev
+  email-contact: security@geeksikh.com
   security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
   bug-bounty-available: false
 dependencies:
