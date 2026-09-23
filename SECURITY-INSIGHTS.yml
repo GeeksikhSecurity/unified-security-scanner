@@ -23,28 +23,35 @@ security-artifacts:
   self-assessment:
     self-assessment-created: false
 security-testing:
-  - tool-type: sast
-    tool-name: 'CodeQL'
-    tool-url: 'https://github.com/github/codeql-action'
+  - name: 'CodeQL'
+    type: SAST
+    url: 'https://github.com/github/codeql-action'
+    rulesets:
+      - default
     integration:
-      ad-hoc: false
+      adhoc: false
       ci: true
-      before-release: false
+      release: false
+    results: {}
     comment: 'security-and-quality + security-extended query suites.'
-  - tool-type: scorecard
-    tool-name: 'OpenSSF Scorecard'
-    tool-url: 'https://github.com/ossf/scorecard'
+  - name: 'OpenSSF Scorecard'
+    type: other
+    url: 'https://github.com/ossf/scorecard'
+    rulesets:
+      - default
     integration:
-      ad-hoc: false
+      adhoc: false
       ci: true
-      before-release: false
+      release: false
+    results: {}
+    comment: 'Scorecard type is ''other'' — the security-insights-spec tool-type enum (SCA/SAST/container/secret/fuzzing/other) has no ''scorecard'' value.'
 security-contacts:
   - type: email
-    value: security@geeksikh.com
+    value: security@unified-scanner.dev
     primary: true
 vulnerability-reporting:
   accepts-vulnerability-reports: true
-  email-contact: security@geeksikh.com
+  email-contact: security@unified-scanner.dev
   security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
   bug-bounty-available: false
 dependencies:
