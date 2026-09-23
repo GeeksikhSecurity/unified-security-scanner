@@ -1,0 +1,51 @@
+header:
+  schema-version: 2.1.0
+  last-updated: '2026-09-23'
+  last-reviewed: '2026-09-23'
+  expiration-date: '2027-09-23T00:00:00.000Z'
+  project-url: 'https://github.com/GeeksikhSecurity/unified-security-scanner'
+  license: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/LICENSE'
+project-lifecycle:
+  bug-fixes-only: false
+  core-maintainers:
+    - 'https://github.com/GeeksikhSecurity'
+  status: active
+contribution-policy:
+  accepts-pull-requests: true
+  accepts-automated-pull-requests: true
+  contributing-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/CONTRIBUTING.md'
+documentation:
+  security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+  vulnerability-reporting: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+security-artifacts:
+  threat-model:
+    threat-model-created: false
+  self-assessment:
+    self-assessment-created: false
+security-testing:
+  - tool-type: sast
+    tool-name: 'CodeQL'
+    tool-url: 'https://github.com/github/codeql-action'
+    integration:
+      ad-hoc: false
+      ci: true
+      before-release: false
+    comment: 'security-and-quality + security-extended query suites.'
+  - tool-type: scorecard
+    tool-name: 'OpenSSF Scorecard'
+    tool-url: 'https://github.com/ossf/scorecard'
+    integration:
+      ad-hoc: false
+      ci: true
+      before-release: false
+security-contacts:
+  - type: email
+    value: security@geeksikh.com
+    primary: true
+vulnerability-reporting:
+  accepts-vulnerability-reports: true
+  email-contact: security@geeksikh.com
+  security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+  bug-bounty-available: false
+dependencies:
+  third-party-packages: true
