@@ -29,11 +29,11 @@ security-testing:
       - security-and-quality
       - security-extended
     integration:
-      adhoc: false
+      adhoc: true
       ci: true
       release: false
     results: {}
-    comment: 'Tool homepage: https://github.com/github/codeql-action'
+    comment: 'enhanced-security-scan.yml runs on a weekly cron in addition to push/PR. Tool homepage: https://github.com/github/codeql-action'
   - name: 'Semgrep'
     type: SAST
     rulesets:
@@ -49,7 +49,7 @@ security-testing:
     rulesets:
       - default
     integration:
-      adhoc: false
+      adhoc: true
       ci: true
       release: false
     results: {}
@@ -63,5 +63,3 @@ vulnerability-reporting:
   email-contact: security@geeksikh.com
   security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
   bug-bounty-available: false
-dependencies:
-  third-party-packages: true
