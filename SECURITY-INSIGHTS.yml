@@ -12,7 +12,7 @@ project-lifecycle:
   status: active
 contribution-policy:
   accepts-pull-requests: true
-  accepts-automated-pull-requests: true
+  accepts-automated-pull-requests: false
   contributing-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/CONTRIBUTING.md'
 documentation:
   security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
