@@ -1,0 +1,65 @@
+header:
+  schema-version: 2.1.0
+  last-updated: '2026-09-23'
+  last-reviewed: '2026-09-23'
+  expiration-date: '2027-09-23'
+  project-url: 'https://github.com/GeeksikhSecurity/unified-security-scanner'
+  license: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/LICENSE'
+project-lifecycle:
+  bug-fixes-only: false
+  core-maintainers:
+    - 'https://github.com/GeeksikhSecurity'
+  status: active
+contribution-policy:
+  accepts-pull-requests: true
+  accepts-automated-pull-requests: false
+  contributing-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/CONTRIBUTING.md'
+documentation:
+  security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+  vulnerability-reporting: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+security-artifacts:
+  threat-model:
+    threat-model-created: false
+  self-assessment:
+    self-assessment-created: false
+security-testing:
+  - name: 'CodeQL'
+    type: SAST
+    rulesets:
+      - security-and-quality
+      - security-extended
+    integration:
+      adhoc: true
+      ci: true
+      release: false
+    results: {}
+    comment: 'enhanced-security-scan.yml runs on a weekly cron in addition to push/PR. Tool homepage: https://github.com/github/codeql-action'
+  - name: 'Semgrep'
+    type: SAST
+    rulesets:
+      - default
+    integration:
+      adhoc: true
+      ci: true
+      release: false
+    results: {}
+    comment: 'Runs on push, PR, and a weekly schedule (Stage 1 of enhanced-security-scan.yml). Tool homepage: https://github.com/semgrep/semgrep'
+  - name: 'OpenSSF Scorecard'
+    type: other
+    rulesets:
+      - default
+    integration:
+      adhoc: true
+      ci: true
+      release: false
+    results: {}
+    comment: 'Scorecard type is ''other'' — the security-insights-spec tool-type enum (SCA/SAST/container/secret/fuzzing/other) has no ''scorecard'' value. Tool homepage: https://github.com/ossf/scorecard'
+security-contacts:
+  - type: email
+    value: security@geeksikh.com
+    primary: true
+vulnerability-reporting:
+  accepts-vulnerability-reports: true
+  email-contact: security@geeksikh.com
+  security-policy: 'https://github.com/GeeksikhSecurity/unified-security-scanner/blob/main/SECURITY.md'
+  bug-bounty-available: false
