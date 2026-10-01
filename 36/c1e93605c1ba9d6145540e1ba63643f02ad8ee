@@ -1,0 +1,59 @@
+src/enhanced-scanner.ts
+  s_b9734e13a69ea0::t_80cdfd7b27dfa0 4-13
+  s_b9734e13a69ea0::t_2eb58a335e1849 498,502
+src/orchestrator/scanner.ts
+  s_b9734e13a69ea0::t_f7583c8667cf91 16-55
+  s_b9734e13a69ea0::t_54ddec24df0bb8 74
+  s_b9734e13a69ea0::t_451f121bee133c 188,192
+  s_b9734e13a69ea0::t_f957df6e515a45 56
+.github/workflows/ci.yml
+  s_b9734e13a69ea0::t_7195bd0017755b 58,64,69-73
+src/fp-reducer/rule-engine.ts
+  s_b9734e13a69ea0::t_a7ab21749e48eb 194-202,208-213
+src/test-reliability/flaky-test-manager.ts
+  s_b9734e13a69ea0::t_aad92fdd2961f8 46-58,64,75-78,80
+package.json
+  s_b9734e13a69ea0::t_7faf82b82fb6b5 12
+src/adapters/truffleHog.ts
+  s_b9734e13a69ea0::t_c594a3b6ac4f80 28-44,53-55
+  s_b9734e13a69ea0::t_3132b48a36aa75 100-103
+  s_b9734e13a69ea0::t_7cfbc812895b23 114
+  s_b9734e13a69ea0::t_b8aebf2002bdc6 7-9
+src/multi-scan-orchestrator.ts
+  s_b9734e13a69ea0::t_9248aa1034f62c 590-599,603,607
+  s_b9734e13a69ea0::t_602402bd789fc8 137-168,173-180,187,190-197,199
+  s_b9734e13a69ea0::t_c6e33bcd4e76ae 320-327,332,336,340,342,346,348-349,357,377-382,384
+  s_b9734e13a69ea0::t_5fd47e3081b969 675,679
+  s_b9734e13a69ea0::t_466c0cecba64be 12
+  s_b9734e13a69ea0::t_c0d8fbedfee0e1 405-411,414-430,432-457,460,463-508
+  s_b9734e13a69ea0::t_8238953cd6e502 528-587
+  s_b9734e13a69ea0::t_4a3f0e98ece819 9,13-26
+  s_b9734e13a69ea0::t_00c0bbee282907 509
+src/index.ts
+  s_b9734e13a69ea0::t_22566836be0faa 6-7,12-26
+src/cli.ts
+  s_b9734e13a69ea0::t_8ddb678c9386c2 1-108
+src/sarif-processor.ts
+  s_b9734e13a69ea0::t_c1d31e465809bf 418-420,422
+  s_b9734e13a69ea0::t_9e913c9dcce347 210
+  s_b9734e13a69ea0::t_820b16f2734cb7 333-348
+src/types.ts
+  s_b9734e13a69ea0::t_e5d1d32ae69dab 7
+  s_b9734e13a69ea0::t_5479b14f2274ad 121-131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "36c1e93605c1ba9d6145540e1ba63643f02ad8ee",
+  "prompts": {},
+  "sessions": {
+    "s_b9734e13a69ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85dab1ed-b1f4-493c-b53f-6808017b10b3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "GeeksikhSecurity <gurvinder@sayvainc.com>"
+    }
+  }
+}
