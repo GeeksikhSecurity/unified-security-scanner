@@ -1,0 +1,19 @@
+.github/workflows/test.yml
+  s_b9734e13a69ea0::t_6f0c5bc58e4be1 40-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "338eb6eb7114b02c8a23d40ba24adb91eb42c5a2",
+  "prompts": {},
+  "sessions": {
+    "s_b9734e13a69ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85dab1ed-b1f4-493c-b53f-6808017b10b3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "GeeksikhSecurity <gurvinder@sayvainc.com>"
+    }
+  }
+}
