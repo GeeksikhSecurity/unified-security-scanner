@@ -15,7 +15,7 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please send an email to: **security@unified-scanner.dev**
+Instead, please send an email to: **security@geeksikh.com**
 
 Include the following information:
 - Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)

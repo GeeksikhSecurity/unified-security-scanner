@@ -1,4 +1,6 @@
 # Enhanced Security Scanner v2.0
+
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/GeeksikhSecurity/unified-security-scanner/badge)](https://securityscorecards.dev/viewer/?uri=github.com/GeeksikhSecurity/unified-security-scanner) [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/GeeksikhSecurity/unified-security-scanner/security/policy)
 ## AI-Powered Multi-Phase Security Analysis
 
 > **Enterprise-grade security scanning with <5% false positive rate**  
@@ -6,8 +8,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](package.json)
-[![Security Scan](https://github.com/yourusername/enhanced-security-scanner/workflows/Enhanced%20Security%20Scan/badge.svg)](https://github.com/yourusername/enhanced-security-scanner/actions)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/yourusername/enhanced-security-scanner)
+[![Security Scan](https://github.com/GeeksikhSecurity/unified-security-scanner/workflows/Enhanced%20Security%20Scan/badge.svg)](https://github.com/GeeksikhSecurity/unified-security-scanner/actions)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/GeeksikhSecurity/unified-security-scanner)
 
 ```
 🛡️ Enhanced Security Scanner v2.0 - AI-Powered Analysis
@@ -58,7 +60,7 @@ docker pull ghcr.io/enhanced-scanner/cli:latest
 
 ### From Source
 ```bash
-git clone https://github.com/yourusername/enhanced-security-scanner.git
+git clone https://github.com/GeeksikhSecurity/unified-security-scanner.git
 cd enhanced-security-scanner
 npm install && npm run build
 ```
@@ -501,8 +503,8 @@ MIT License - see [LICENSE](LICENSE) for details
 ## 📞 Support
 
 - 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/yourusername/enhanced-security-scanner/issues)
-- 💬 [Discussions](https://github.com/yourusername/enhanced-security-scanner/discussions)
+- 🐛 [Issue Tracker](https://github.com/GeeksikhSecurity/unified-security-scanner/issues)
+- 💬 [Discussions](https://github.com/GeeksikhSecurity/unified-security-scanner/discussions)
 - 📧 [Email Support](mailto:security@enhanced-scanner.dev)
 
 ---
