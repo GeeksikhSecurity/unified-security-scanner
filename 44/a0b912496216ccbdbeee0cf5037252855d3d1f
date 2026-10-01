@@ -1,0 +1,59 @@
+src/enhanced-scanner.ts
+  s_b9734e13a69ea0::t_ac79ec734cdd63 100-102
+  s_b9734e13a69ea0::t_47bfd05b10bf5c 97-99
+  s_b9734e13a69ea0::t_805a2f24899f63 103-105
+  s_b9734e13a69ea0::t_e3b47ca5a4ccf7 1-96,106-518
+jest.config.js
+  s_b9734e13a69ea0::t_6a530b068c9ba1 7-13
+tests/analyzers.test.ts
+  s_b9734e13a69ea0::t_781ee2155a4902 27-28
+  s_b9734e13a69ea0::t_bc0570b9427146 24-26
+  s_b9734e13a69ea0::t_6c07d08d4541f5 29-31
+  s_b9734e13a69ea0::t_002a2e3168abb8 1-23,32-133
+package-lock.json
+  s_b9734e13a69ea0::t_7cf8d47fa849d0 1-4599
+src/adapters/semgrep.ts
+  s_b9734e13a69ea0::t_d4af278c4c2281 1-144
+src/adapters/truffleHog.ts
+  s_b9734e13a69ea0::t_dd59775423534c 1-108
+src/analyzers/hardcoded-secrets.ts
+  s_b9734e13a69ea0::t_da44f0c1757028 1-176
+src/analyzers/malicious-packages.ts
+  s_b9734e13a69ea0::t_4000d634eed005 1-316
+src/analyzers/technical-debt.ts
+  s_b9734e13a69ea0::t_8178ba89525015 1-338
+src/fp-reducer/rule-engine.ts
+  s_b9734e13a69ea0::t_d2d25f3b8c9577 1-309
+src/multi-scan-orchestrator.ts
+  s_b9734e13a69ea0::t_b151d507d3a83b 1-575
+src/orchestrator/scanner.ts
+  s_b9734e13a69ea0::t_f5c22f393e65d3 1-167
+src/reporters/json.ts
+  s_b9734e13a69ea0::t_10685a0a9825f1 1-18
+src/reporters/sarif.ts
+  s_b9734e13a69ea0::t_fcb3abb476e254 1-226
+src/rules/custom-security-rules.ts
+  s_b9734e13a69ea0::t_1f778e8beab236 1-369
+src/sarif-processor.ts
+  s_b9734e13a69ea0::t_9f0b949ebebf91 1-416
+src/test-reliability/flaky-test-manager.ts
+  s_b9734e13a69ea0::t_64360a22ae79ac 1-109
+src/types.ts
+  s_b9734e13a69ea0::t_0bcbd438b3c26c 1-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "44a0b912496216ccbdbeee0cf5037252855d3d1f",
+  "prompts": {},
+  "sessions": {
+    "s_b9734e13a69ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85dab1ed-b1f4-493c-b53f-6808017b10b3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "GeeksikhSecurity <gurvinder@sayvainc.com>"
+    }
+  }
+}
