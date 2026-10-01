@@ -191,16 +191,26 @@ export class FalsePositiveRuleEngine {
   private isCliPathTraversal(finding: Finding): boolean {
     const isCliFile = CLI_PATTERNS.test(finding.file);
     const isPathOp = /path\.(join|resolve|normalize)/.test(finding.snippet || '');
-    const hasValidation = /validate|sanitize|normalize|resolve/.test(finding.snippet || '');
-    
-    return isCliFile && isPathOp && (hasValidation || finding.ruleId?.includes('path-traversal'));
+    // `resolve`/`normalize` alone do NOT enforce containment — they clean up
+    // `.`/`..` segments syntactically but a resolved path can still land
+    // outside the intended base directory (e.g. `path.resolve(base, '../../etc/passwd')`).
+    // Only suppress when the snippet shows an actual containment check against
+    // a base path, not just the presence of those keywords.
+    const hasContainmentCheck = /\.startsWith\(\s*(base|root|allowed|safe)/i.test(finding.snippet || '') ||
+      /isPathInside|path-is-inside|isWithin(Directory)?\(/i.test(finding.snippet || '');
+
+    return isCliFile && isPathOp && hasContainmentCheck;
   }
 
   private isDocumentationFalsePositive(finding: Finding): boolean {
     const isDocFile = /\.(md|rst|txt)$|docs?\//i.test(finding.file);
     const hasDocMarkers = DOC_MARKERS.test(finding.snippet || '');
-    
-    return isDocFile && (hasDocMarkers || finding.category === 'secrets');
+
+    // A secret finding living in a doc file is not, by itself, evidence of a
+    // false positive — real credentials get pasted into README/runbooks all
+    // the time. Only suppress when the snippet itself looks like a
+    // placeholder (DOC_MARKERS), never on file location alone.
+    return isDocFile && hasDocMarkers;
   }
 
   private isScannerRuleFalsePositive(finding: Finding): boolean {

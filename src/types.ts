@@ -4,7 +4,7 @@
 
 export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 export type Category = 'secrets' | 'injection' | 'auth' | 'crypto' | 'dependency' | 'other';
-export type ScanSource = 'truffleHog' | 'semgrep' | 'custom-npm' | 'custom-react' | 'custom-secrets';
+export type ScanSource = 'truffleHog' | 'semgrep' | 'custom-npm' | 'custom-react' | 'custom-secrets' | 'custom-rules' | 'codeql';
 
 export interface Finding {
   // Identification
@@ -117,6 +117,17 @@ export interface ScanConfig {
     customScanners?: {
       enabled: boolean;
       modules: string[];
+    };
+    /**
+     * Burp Suite (DAST). Explicitly OPTIONAL and NOT IMPLEMENTED — this
+     * scanner is static-analysis only (SAST + secrets + dependency); dynamic
+     * scanning of a live, running application is a different problem (needs
+     * a reachable target, an auth flow, crawl state) and is out of scope
+     * here. No code path reads this field; it exists so the gap is a
+     * documented, deliberate decision rather than a silent omission. Skip it.
+     */
+    burp?: {
+      enabled: boolean;
     };
   };
 

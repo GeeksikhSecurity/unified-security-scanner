@@ -1,20 +1,19 @@
 /**
  * Enhanced Security Scanner implementing comprehensive security testing checklist
  * Based on LLM Security Scanner Research (Joshua Hu, 2025)
- * 
- * Features:
- * - Multi-tool orchestration (Semgrep, CodeQL, TruffleHog)
- * - AI-enhanced analysis with non-deterministic scanning
- * - Advanced false positive reduction
- * - Custom natural language rules
- * - Comprehensive vulnerability detection
+ *
+ * NOT THE MAINTAINED ENGINE. This class is an earlier prototype whose phase
+ * methods (runSemgrep, runCodeQL, queryAI, custom-rule application, etc.)
+ * are still unimplemented TODO stubs — scan() will always return zero real
+ * findings. `MultiScanOrchestrator` (multi-scan-orchestrator.ts) is the
+ * maintained, actually-wired implementation of the same 3-phase strategy
+ * (real Semgrep/CodeQL/TruffleHog execution, real custom-rule matching, real
+ * AI validation via Anthropic). Use that instead; this class is kept for
+ * backwards compatibility with anything already importing it, not as
+ * guidance for new code.
  */
 
 import { randomUUID } from 'crypto';
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
-import pLimit from 'p-limit';
 import type {
   ScanConfig,
   ScanResult,
@@ -496,9 +495,11 @@ Respond in JSON format with: isValid, confidence, exploitability, impact, enhanc
     const bySource: Record<ScanSource, number> = {
       truffleHog: 0,
       semgrep: 0,
+      codeql: 0,
       'custom-npm': 0,
       'custom-react': 0,
       'custom-secrets': 0,
+      'custom-rules': 0,
     };
 
     for (const finding of findings) {

@@ -55,22 +55,22 @@ jobs:
         run: npm install
 
       - name: Build scanner
-        run: npm run build || echo "Build not configured"
+        run: npm run build
 
       - name: Install external scanners
         run: |
           # Install TruffleHog
           curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
-          
+
           # Install Semgrep
           python3 -m pip install semgrep
 
       - name: Run comprehensive security scan
-        run: |
-          mkdir -p reports
-          echo "Security scan placeholder"
-          echo '{}' > reports/results.json
-          echo '{}' > reports/results.sarif
+        run: npm run scan:self -- . reports
+        # The scanner itself exits 1 on CRITICAL/HIGH findings (by design,
+        # same policy SARIFCLIUtils enforces) — don't fail the job on that,
+        # only on the tool crashing. continue-on-error keeps the SARIF
+        # upload/PR comment steps below running either way via `if: always()`.
         continue-on-error: true
 
       - name: Upload SARIF to GitHub Security

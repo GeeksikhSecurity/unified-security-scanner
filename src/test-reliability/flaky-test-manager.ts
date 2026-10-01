@@ -43,12 +43,25 @@ export class FlakyTestManager {
   }
 
   detectFlakyTests(testResults: TestResult[]): string[] {
+    if (!this.config.detection.enabled) {
+      return [];
+    }
+
+    // Record each incoming result into its per-test history before scanning
+    // it — without this, testHistory never grows past empty and this method
+    // was a permanent no-op for every caller.
+    for (const result of testResults) {
+      const history = this.testHistory.get(result.name) ?? [];
+      history.push(result);
+      this.testHistory.set(result.name, history);
+    }
+
     const flakyTests: string[] = [];
 
     for (const [testName, history] of this.testHistory) {
       if (this.isTestFlaky(history)) {
         flakyTests.push(testName);
-        
+
         if (this.config.quarantine.autoQuarantine) {
           this.quarantineTest(testName);
         }
@@ -59,8 +72,12 @@ export class FlakyTestManager {
   }
 
   async executeWithRetry(testFn: () => Promise<TestResult>): Promise<TestResult> {
+    if (!this.config.retry.enabled) {
+      return testFn();
+    }
+
     let lastResult: TestResult;
-    
+
     for (let attempt = 1; attempt <= this.config.retry.maxRetries + 1; attempt++) {
       try {
         lastResult = await testFn();

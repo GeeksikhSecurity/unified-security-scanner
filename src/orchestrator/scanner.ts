@@ -3,7 +3,6 @@
  */
 
 import { randomUUID } from 'crypto';
-import pLimit from 'p-limit';
 import type {
   ScanConfig,
   ScanResult,
@@ -13,6 +12,47 @@ import type {
   Category,
   ScanSource,
 } from '../types.js';
+
+/**
+ * Minimal concurrency limiter (replaces the `p-limit` dependency, whose
+ * transitive `yocto-queue` dependency is pure ESM and breaks under Jest's
+ * ts-jest transform without extra Babel config — not worth the complexity
+ * for one call site doing this little).
+ */
+function createConcurrencyLimiter(concurrency: number) {
+  let active = 0;
+  const queue: Array<() => void> = [];
+
+  const runNext = () => {
+    active--;
+    const next = queue.shift();
+    if (next) next();
+  };
+
+  return function limit<T>(fn: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const run = () => {
+        active++;
+        fn().then(
+          (value) => {
+            runNext();
+            resolve(value);
+          },
+          (error) => {
+            runNext();
+            reject(error);
+          }
+        );
+      };
+
+      if (active < concurrency) {
+        run();
+      } else {
+        queue.push(run);
+      }
+    });
+  };
+}
 
 export class ScanOrchestrator {
   private adapters: ScannerAdapter[] = [];
@@ -31,7 +71,7 @@ export class ScanOrchestrator {
     const allFindings: Finding[] = [];
 
     // Limit concurrent scanners based on configuration
-    const limit = pLimit(config.performance.parallelWorkers || 4);
+    const limit = createConcurrencyLimiter(config.performance.parallelWorkers || 4);
 
     // Run all enabled adapters in parallel
     const scanPromises = this.adapters.map((adapter) =>
@@ -145,9 +185,11 @@ export class ScanOrchestrator {
     const bySource: Record<ScanSource, number> = {
       truffleHog: 0,
       semgrep: 0,
+      codeql: 0,
       'custom-npm': 0,
       'custom-react': 0,
       'custom-secrets': 0,
+      'custom-rules': 0,
     };
 
     for (const finding of findings) {

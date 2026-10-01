@@ -4,6 +4,9 @@
 
 import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
+import { promises as fs } from 'fs';
+import os from 'os';
+import path from 'path';
 import type { ScannerAdapter, ScanConfig, Finding } from '../types.js';
 
 export class TruffleHogAdapter implements ScannerAdapter {
@@ -22,6 +25,23 @@ export class TruffleHogAdapter implements ScannerAdapter {
       return [];
     }
 
+    const excludePatterns = config.tools.truffleHog?.exclude || [];
+    let excludeFile: string | undefined;
+    if (excludePatterns.length > 0) {
+      excludeFile = path.join(os.tmpdir(), `trufflehog-exclude-${randomUUID()}.txt`);
+      await fs.writeFile(excludeFile, excludePatterns.join('\n'), 'utf-8');
+    }
+
+    try {
+      return await this.runScan(config, excludeFile);
+    } finally {
+      if (excludeFile) {
+        await fs.unlink(excludeFile).catch(() => {});
+      }
+    }
+  }
+
+  private async runScan(config: ScanConfig, excludeFile: string | undefined): Promise<Finding[]> {
     const findings: Finding[] = [];
 
     return new Promise((resolve, reject) => {
@@ -30,6 +50,9 @@ export class TruffleHogAdapter implements ScannerAdapter {
         config.scan.target,
         '--json',
         '--no-verification',
+        // Without this, scans traverse excluded directories (e.g.
+        // node_modules) regardless of the configured exclusion list.
+        ...(excludeFile ? [`--exclude-paths=${excludeFile}`] : []),
         ...(config.tools.truffleHog?.args || []),
       ];
 
@@ -74,7 +97,10 @@ export class TruffleHogAdapter implements ScannerAdapter {
 
   private convertToFinding(truffleHogResult: any): Finding {
     const detectorName = truffleHogResult.DetectorName || 'unknown';
-    const raw = truffleHogResult.Raw || '';
+    // Never persist the live secret value (`Raw`) into a finding/report.
+    // TruffleHog's own `Redacted` field masks the middle of the match; fall
+    // back to a fixed placeholder if it's missing rather than the raw value.
+    const snippet = truffleHogResult.Redacted || '[secret redacted]';
     const sourceMetadata = truffleHogResult.SourceMetadata?.Data?.Filesystem || {};
 
     return {
@@ -85,7 +111,7 @@ export class TruffleHogAdapter implements ScannerAdapter {
       category: 'secrets',
       title: `Potential ${detectorName} secret detected`,
       description: `TruffleHog detected a potential ${detectorName} secret in the codebase.`,
-      snippet: raw.substring(0, 100),
+      snippet,
       file: sourceMetadata.file || 'unknown',
       line: sourceMetadata.line || 0,
       confidence: truffleHogResult.Verified ? 0.95 : 0.7,

@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "echo 'Linting not configured'",
     "dev": "tsc --watch",
-    "scan:self": "echo 'Self-scan placeholder'"
+    "scan:self": "node dist/cli.js"
   },
   "dependencies": {
     "@babel/parser": "^7.23.0",
@@ -17,7 +17,6 @@
     "@babel/types": "^7.23.0",
     "glob": "^10.3.10",
     "micromatch": "^4.0.5",
-    "p-limit": "^5.0.0",
     "picomatch": "^3.0.1"
   },
   "devDependencies": {
