@@ -1,0 +1,24 @@
+src/multi-scan-orchestrator.ts
+  s_b9734e13a69ea0::t_0bb617cf9ce193 175-179,181-182,192-204
+  s_b9734e13a69ea0::t_9386ab4bf7a488 344-351
+  s_b9734e13a69ea0::t_2294c6d67cdb13 701-704
+  s_b9734e13a69ea0::t_f8321ac2cb2d0f 54-59
+src/cli.ts
+  s_b9734e13a69ea0::t_b10d700f9ca5b9 100-113,115-116,120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a0a2393238ba0cbd41ac6a1f49840559f7307a12",
+  "prompts": {},
+  "sessions": {
+    "s_b9734e13a69ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85dab1ed-b1f4-493c-b53f-6808017b10b3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "GeeksikhSecurity <gurvinder@sayvainc.com>"
+    }
+  }
+}
