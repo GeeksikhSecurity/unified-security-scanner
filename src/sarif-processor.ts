@@ -130,9 +130,13 @@ export class SARIFProcessor {
             uri: this.relativePath(finding.file, sourceRoot) 
           },
           region: {
-            startLine: finding.line,
+            // SARIF requires startLine/endLine >= 1. Some findings (e.g.
+            // MaliciousPackageScanner's package.json-level matches) don't
+            // have a specific line and report 0 — clamp to 1 rather than
+            // emit a region GitHub's SARIF validator rejects outright.
+            startLine: Math.max(1, finding.line),
             startColumn: finding.column || 1,
-            endLine: finding.endLine || finding.line,
+            endLine: Math.max(1, finding.endLine || finding.line),
             endColumn: finding.endColumn,
             snippet: finding.snippet ? { text: finding.snippet } : undefined,
           },
@@ -207,7 +211,7 @@ export class SARIFProcessor {
             id: randomUUID(),
             ruleId: result.ruleId,
             source: this.mapToolNameToSource(toolName),
-            severity: this.mapLevelToSeverity(result.level),
+            severity: this.mapLevelToSeverity(result.level, result.properties?.tags),
             category: this.inferCategory(result.ruleId),
             file: location.artifactLocation.uri,
             line: location.region.startLine,
@@ -330,7 +334,22 @@ export class SARIFProcessor {
     }
   }
 
-  private static mapLevelToSeverity(level: string): Finding['severity'] {
+  private static mapLevelToSeverity(level: string, tags?: string[]): Finding['severity'] {
+    // `mapSeverityToLevel` collapses both CRITICAL and HIGH to SARIF's 'error'
+    // level (SARIF only has 4 levels for 5 severities), so decoding from
+    // `level` alone can never recover HIGH — it always comes back CRITICAL.
+    // The encoder also writes the real severity as a lowercase tag
+    // (`tags: [finding.category, finding.severity.toLowerCase()]`); read that
+    // back first when present, and only fall back to the lossy `level`
+    // mapping for SARIF from tools that don't use this tag convention.
+    const severities: Finding['severity'][] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'];
+    const tagSeverity = tags
+      ?.map((t) => t.toUpperCase())
+      .find((t) => severities.includes(t as Finding['severity']));
+    if (tagSeverity) {
+      return tagSeverity as Finding['severity'];
+    }
+
     switch (level) {
       case 'error': return 'CRITICAL';
       case 'warning': return 'HIGH';
@@ -400,9 +419,11 @@ export class SARIFCLIUtils {
         process.exit(1);
       }
       
-      // Check for critical findings
+      // Check for critical/high findings. `hasCritical` alone would let a
+      // HIGH-only result set through silently, even though the summary line
+      // below reports high-severity findings too.
       const criticalCheck = await SARIFProcessor.checkCriticalFindings(outputFile);
-      if (criticalCheck.hasCritical) {
+      if (criticalCheck.hasCritical || criticalCheck.highCount > 0) {
         console.log(`⚠️  Found ${criticalCheck.criticalCount} critical and ${criticalCheck.highCount} high severity findings`);
         process.exit(1);
       }
