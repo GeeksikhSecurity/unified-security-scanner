@@ -25,11 +25,23 @@ export class TruffleHogAdapter implements ScannerAdapter {
       return [];
     }
 
-    const excludePatterns = config.tools.truffleHog?.exclude || [];
+    // Merge the global scan.exclude list with the per-tool one — without
+    // this, a default-config scan ignores scan.exclude entirely for
+    // TruffleHog and traverses node_modules/dist/.git regardless of it.
+    const excludePatterns = [
+      ...(config.scan.exclude || []),
+      ...(config.tools.truffleHog?.exclude || []),
+    ];
     let excludeFile: string | undefined;
     if (excludePatterns.length > 0) {
       excludeFile = path.join(os.tmpdir(), `trufflehog-exclude-${randomUUID()}.txt`);
-      await fs.writeFile(excludeFile, excludePatterns.join('\n'), 'utf-8');
+      // --exclude-paths expects one RE2 regex per line, not glob syntax.
+      // Patterns configured as globs (e.g. "**/test-fixtures/**") would
+      // either fail to match as intended or, worse, be invalid RE2 (Go's
+      // regex engine rejects some malformed repetition operators) and crash
+      // TruffleHog outright. Convert the common glob syntax to regex first.
+      const regexPatterns = excludePatterns.map((p) => this.globToRegex(p));
+      await fs.writeFile(excludeFile, regexPatterns.join('\n'), 'utf-8');
     }
 
     try {
@@ -93,6 +105,20 @@ export class TruffleHogAdapter implements ScannerAdapter {
         reject(new Error(`Failed to spawn TruffleHog: ${err.message}`));
       });
     });
+  }
+
+  /**
+   * Convert a simple glob pattern to the RE2-compatible regex TruffleHog's
+   * --exclude-paths expects. Handles the common cases this config's callers
+   * actually use (directory names, `*`, `**`); not a full glob implementation.
+   */
+  private globToRegex(glob: string): string {
+    const escaped = glob
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&') // escape regex metacharacters
+      .replace(/\*\*/g, '\u0000') // placeholder for "**" so the next line doesn't re-match it
+      .replace(/\*/g, '[^/]*')
+      .replace(/\u0000/g, '.*');
+    return escaped;
   }
 
   private convertToFinding(truffleHogResult: any): Finding {

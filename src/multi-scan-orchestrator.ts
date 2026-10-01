@@ -47,11 +47,22 @@ export interface MultiScanConfig extends ScanConfig {
   };
 }
 
+export interface ToolOutcome {
+  name: string;
+  success: boolean;
+  error?: string;
+}
+
 export interface ScanPhaseResult {
   phase: string;
   duration: number;
   findings: Finding[];
-  toolsUsed: string[];
+  // Per-tool outcome, not just names — extractToolsRun used to stamp the
+  // whole phase's success/error onto every tool it ran, so one tool's
+  // crash (e.g. CodeQL not installed) made every other tool in the same
+  // phase (Semgrep, TruffleHog, the analyzers) look like it had also failed,
+  // even when it produced real findings.
+  toolsUsed: ToolOutcome[];
   success: boolean;
   error?: string;
 }
@@ -133,7 +144,7 @@ export class MultiScanOrchestrator {
     console.log('📊 Phase 1: Traditional SAST Analysis');
     const startTime = Date.now();
     const findings: Finding[] = [];
-    const toolsUsed: string[] = [];
+    const toolsUsed: ToolOutcome[] = [];
     const toolErrors: string[] = [];
 
     // Semgrep, TruffleHog, and the restored static analyzers (hardcoded
@@ -155,8 +166,9 @@ export class MultiScanOrchestrator {
     const adapterResult = await adapterOrchestrator.scan(config);
     findings.push(...adapterResult.findings);
     for (const tool of adapterResult.toolsRun) {
-      toolsUsed.push(tool.name);
-      if (tool.exitCode !== 0) {
+      const success = tool.exitCode === 0;
+      toolsUsed.push({ name: tool.name, success, error: success ? undefined : tool.error });
+      if (!success) {
         toolErrors.push(`${tool.name}: ${tool.error || `exited ${tool.exitCode}`}`);
       }
     }
@@ -169,9 +181,11 @@ export class MultiScanOrchestrator {
     try {
       const codeqlFindings = await this.runCodeQLHighNoise(config);
       findings.push(...codeqlFindings);
-      toolsUsed.push('codeql');
+      toolsUsed.push({ name: 'codeql', success: true });
     } catch (error) {
-      toolErrors.push(`codeql: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      toolsUsed.push({ name: 'codeql', success: false, error: message });
+      toolErrors.push(`codeql: ${message}`);
     }
 
     const duration = (Date.now() - startTime) / 1000;
@@ -206,24 +220,24 @@ export class MultiScanOrchestrator {
     console.log('🤖 Phase 2: AI-Enhanced Analysis');
     const startTime = Date.now();
     const findings: Finding[] = [];
-    const toolsUsed: string[] = [];
-    
+    const toolsUsed: ToolOutcome[] = [];
+
     try {
       // Run multiple iterations to embrace non-determinism
       for (let i = 1; i <= config.phases.aiEnhanced.iterations; i++) {
         console.log(`  🔄 AI Analysis iteration ${i}/${config.phases.aiEnhanced.iterations}`);
-        
+
         // Apply custom natural language rules
         if (config.phases.aiEnhanced.customRules) {
           const customRuleFindings = await this.applyCustomNaturalLanguageRules(config, phase1Findings);
           findings.push(...customRuleFindings);
-          toolsUsed.push('custom-rules');
+          toolsUsed.push({ name: 'custom-rules', success: true });
         }
-        
+
         // AI validation of findings
         const aiValidatedFindings = await this.aiValidateFindings(phase1Findings, config);
         findings.push(...aiValidatedFindings);
-        toolsUsed.push(config.phases.aiEnhanced.aiProvider);
+        toolsUsed.push({ name: config.phases.aiEnhanced.aiProvider, success: true });
       }
       
       const duration = (Date.now() - startTime) / 1000;
@@ -256,35 +270,35 @@ export class MultiScanOrchestrator {
     console.log('🔍 Phase 3: Targeted Deep Dive Analysis');
     const startTime = Date.now();
     const findings: Finding[] = [];
-    const toolsUsed: string[] = [];
-    
+    const toolsUsed: ToolOutcome[] = [];
+
     try {
       // Focus on critical findings for deep analysis
       const criticalFindings = allFindings.filter(f => f.severity === 'CRITICAL');
-      
+
       for (const finding of criticalFindings.slice(0, 10)) { // Limit to top 10 for performance
         console.log(`  🔬 Deep dive: ${finding.title}`);
-        
+
         // Function-by-function analysis
         if (config.phases.deepDive.functionLevel) {
           const functionAnalysis = await this.analyzeFunctionLevel(finding, config);
           findings.push(...functionAnalysis);
-          toolsUsed.push('function-analysis');
+          toolsUsed.push({ name: 'function-analysis', success: true });
         }
-        
+
         // Multi-file flow analysis
         if (config.phases.deepDive.multiFileAnalysis) {
           const flowAnalysis = await this.analyzeMultiFileFlow(finding, config);
           findings.push(...flowAnalysis);
-          toolsUsed.push('flow-analysis');
+          toolsUsed.push({ name: 'flow-analysis', success: true });
         }
-        
+
         // Intent vs implementation analysis
         if (config.phases.deepDive.intentAnalysis) {
           const intentAnalysis = await this.analyzeIntentVsImplementation(finding, config);
           if (intentAnalysis) {
             findings.push(intentAnalysis);
-            toolsUsed.push('intent-analysis');
+            toolsUsed.push({ name: 'intent-analysis', success: true });
           }
         }
       }
@@ -535,7 +549,12 @@ export class MultiScanOrchestrator {
     const files = await glob(`**/*.{${extensions.join(',')}}`, {
       cwd: config.scan.target,
       absolute: true,
-      ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.min.js'],
+      // Merge caller-configured exclusions with the built-in defaults —
+      // without this, config.scan.exclude was silently ignored here.
+      ignore: [
+        '**/node_modules/**', '**/dist/**', '**/build/**', '**/*.min.js',
+        ...(config.scan.exclude || []).map((p) => (p.includes('/') || p.includes('*') ? p : `**/${p}/**`)),
+      ],
     });
 
     const findings: Finding[] = [];
@@ -543,6 +562,12 @@ export class MultiScanOrchestrator {
     for (const file of files) {
       let content: string;
       try {
+        // Enforce the configured file-size ceiling before reading — without
+        // this, maxFileSize was defined but never applied to this scan path.
+        const stat = await fs.stat(file);
+        if (stat.size > config.scan.maxFileSize) {
+          continue;
+        }
         content = await fs.readFile(file, 'utf-8');
       } catch {
         continue;
@@ -640,13 +665,17 @@ export class MultiScanOrchestrator {
   }
   
   private extractToolsRun(phaseResults: ScanPhaseResult[]): ScanResult['toolsRun'] {
-    return phaseResults.flatMap(phase => 
+    // Per-tool success/error now, not the whole phase's outcome stamped onto
+    // every tool it ran — one tool crashing (e.g. CodeQL unavailable) no
+    // longer makes every other tool in the same phase look like it failed
+    // too, even when it actually produced real findings.
+    return phaseResults.flatMap(phase =>
       phase.toolsUsed.map(tool => ({
-        name: tool,
+        name: tool.name,
         version: 'unknown',
         duration: phase.duration,
-        exitCode: phase.success ? 0 : 1,
-        error: phase.error,
+        exitCode: tool.success ? 0 : 1,
+        error: tool.error,
       }))
     );
   }

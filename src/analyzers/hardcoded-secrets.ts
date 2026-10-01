@@ -94,17 +94,17 @@ export class HardcodedSecretsAnalyzer implements ScannerAdapter {
         const matches = line.matchAll(new RegExp(keyPattern.pattern, 'gi'));
 
         for (const match of matches) {
-          const snippet = match[0];
+          const rawSnippet = match[0];
           const context = this.getContext(lines, lineIndex, 5);
           
           if (keyPattern.contextValidation) {
-            const shouldFlag = keyPattern.contextValidation(context, snippet);
+            const shouldFlag = keyPattern.contextValidation(context, rawSnippet);
             if (!shouldFlag) {
               continue;
             }
           }
 
-          if (this.isFalsePositive(snippet, context)) {
+          if (this.isFalsePositive(rawSnippet, context)) {
             continue;
           }
 
@@ -116,7 +116,11 @@ export class HardcodedSecretsAnalyzer implements ScannerAdapter {
             category: 'secrets',
             title: `Hardcoded ${keyPattern.name} detected`,
             description: `Found a hardcoded ${keyPattern.name} in the source code. ${keyPattern.isPublicKey ? 'Verify this is a public/read-only key.' : 'This should be moved to environment variables.'}`,
-            snippet,
+            // Never persist the live credential value — not into reports,
+            // and not into a prompt sent to an external AI provider for
+            // validation (MultiScanOrchestrator.aiValidateFindings does
+            // exactly that for CRITICAL/HIGH findings).
+            snippet: this.redact(rawSnippet),
             file: filePath,
             line: lineNumber,
             confidence: keyPattern.isPublicKey ? 0.6 : 0.9,
@@ -140,6 +144,15 @@ export class HardcodedSecretsAnalyzer implements ScannerAdapter {
     }
 
     return findings;
+  }
+
+  /**
+   * Mask long alphanumeric/secret-shaped runs in a matched snippet (e.g.
+   * `apiKey: "sk_live_abcdef..."` -> `apiKey: "sk_l…[redacted]"`), keeping
+   * enough surrounding syntax for triage without persisting the live value.
+   */
+  private redact(snippet: string): string {
+    return snippet.replace(/[A-Za-z0-9_\-+/=]{8,}/g, (match) => `${match.slice(0, 4)}…[redacted]`);
   }
 
   private getContext(lines: string[], currentLine: number, contextSize: number): string {

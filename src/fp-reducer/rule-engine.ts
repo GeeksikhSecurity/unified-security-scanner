@@ -196,7 +196,14 @@ export class FalsePositiveRuleEngine {
     // outside the intended base directory (e.g. `path.resolve(base, '../../etc/passwd')`).
     // Only suppress when the snippet shows an actual containment check against
     // a base path, not just the presence of those keywords.
-    const hasContainmentCheck = /\.startsWith\(\s*(base|root|allowed|safe)/i.test(finding.snippet || '') ||
+    //
+    // A bare `.startsWith(base)` is NOT itself a safe containment check —
+    // "/srv/uploads-attacker".startsWith("/srv/uploads") is true, so that
+    // pattern alone would suppress a genuine traversal finding against code
+    // with the exact boundary bug this check exists to catch. Only accept
+    // startsWith when the base operand includes a trailing separator (the
+    // boundary-safe form), or a dedicated containment helper.
+    const hasContainmentCheck = /\.startsWith\(\s*[^)]*?(sep|path\.sep|['"`]\/['"`])/i.test(finding.snippet || '') ||
       /isPathInside|path-is-inside|isWithin(Directory)?\(/i.test(finding.snippet || '');
 
     return isCliFile && isPathOp && hasContainmentCheck;

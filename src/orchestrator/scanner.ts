@@ -70,8 +70,13 @@ export class ScanOrchestrator {
     const toolsRun: ScanResult['toolsRun'] = [];
     const allFindings: Finding[] = [];
 
-    // Limit concurrent scanners based on configuration
-    const limit = createConcurrencyLimiter(config.performance.parallelWorkers || 4);
+    // Limit concurrent scanners based on configuration. `|| 4` only catches
+    // 0 — a negative value is truthy in JS and would pass straight through,
+    // and createConcurrencyLimiter(negative) never lets any queued task run
+    // (active starts at 0, which is never < a negative number), deadlocking
+    // scan() forever. Clamp to a positive integer instead.
+    const configuredWorkers = Math.floor(config.performance.parallelWorkers);
+    const limit = createConcurrencyLimiter(configuredWorkers > 0 ? configuredWorkers : 4);
 
     // Run all enabled adapters in parallel
     const scanPromises = this.adapters.map((adapter) =>

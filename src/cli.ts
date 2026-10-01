@@ -97,7 +97,21 @@ async function main(): Promise<void> {
   );
   console.log(`Reports written to ${outputDir}/results.json and ${outputDir}/results.sarif`);
 
-  if (CRITICAL > 0 || HIGH > 0) {
+  // A tool crashing (or being unavailable) must not be indistinguishable
+  // from "ran clean, found nothing" — executePhase1 records a nonzero
+  // exitCode per failed tool instead of swallowing it; surface that here
+  // too, not just the finding counts. CI tolerates this exit code via
+  // `continue-on-error` on the workflow step rather than this script
+  // pretending everything succeeded.
+  const failedTools = result.toolsRun.filter((t) => t.exitCode !== 0);
+  if (failedTools.length > 0) {
+    console.warn(
+      `\n⚠️  ${failedTools.length} tool(s) did not complete successfully: ` +
+        failedTools.map((t) => `${t.name} (${t.error || `exit ${t.exitCode}`})`).join(', ')
+    );
+  }
+
+  if (CRITICAL > 0 || HIGH > 0 || failedTools.length > 0) {
     process.exitCode = 1;
   }
 }
