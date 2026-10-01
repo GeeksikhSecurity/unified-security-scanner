@@ -97,21 +97,27 @@ async function main(): Promise<void> {
   );
   console.log(`Reports written to ${outputDir}/results.json and ${outputDir}/results.sarif`);
 
-  // A tool crashing (or being unavailable) must not be indistinguishable
-  // from "ran clean, found nothing" — executePhase1 records a nonzero
-  // exitCode per failed tool instead of swallowing it; surface that here
-  // too, not just the finding counts. CI tolerates this exit code via
-  // `continue-on-error` on the workflow step rather than this script
-  // pretending everything succeeded.
-  const failedTools = result.toolsRun.filter((t) => t.exitCode !== 0);
-  if (failedTools.length > 0) {
+  // A tool crashing must not be indistinguishable from "ran clean, found
+  // nothing" — executePhase1 records a nonzero exitCode per failed tool
+  // instead of swallowing it. But exitCode -1 means "not installed in this
+  // environment" (see MultiScanOrchestrator's ToolOutcome.available), which
+  // is an environment/config fact, not a scanner bug — some CI jobs
+  // legitimately never install Semgrep/TruffleHog/CodeQL before calling
+  // this script. Only an actual crash (exitCode 1, a tool that WAS present
+  // and failed while running) should fail the build.
+  const unavailableTools = result.toolsRun.filter((t) => t.exitCode === -1);
+  const crashedTools = result.toolsRun.filter((t) => t.exitCode !== 0 && t.exitCode !== -1);
+  if (unavailableTools.length > 0) {
+    console.warn(`\nℹ️  ${unavailableTools.length} tool(s) not available in this environment: ${unavailableTools.map((t) => t.name).join(', ')}`);
+  }
+  if (crashedTools.length > 0) {
     console.warn(
-      `\n⚠️  ${failedTools.length} tool(s) did not complete successfully: ` +
-        failedTools.map((t) => `${t.name} (${t.error || `exit ${t.exitCode}`})`).join(', ')
+      `\n⚠️  ${crashedTools.length} tool(s) crashed while running: ` +
+        crashedTools.map((t) => `${t.name} (${t.error || `exit ${t.exitCode}`})`).join(', ')
     );
   }
 
-  if (CRITICAL > 0 || HIGH > 0 || failedTools.length > 0) {
+  if (CRITICAL > 0 || HIGH > 0 || crashedTools.length > 0) {
     process.exitCode = 1;
   }
 }

@@ -51,6 +51,12 @@ export interface ToolOutcome {
   name: string;
   success: boolean;
   error?: string;
+  // true when the tool genuinely crashed/errored while running; false when
+  // it was simply not installed/available in this environment. Callers (see
+  // cli.ts) should treat these very differently — a missing binary in an
+  // environment that never installed it isn't a scanner bug, but a crash in
+  // a tool that IS present is.
+  available?: boolean;
 }
 
 export interface ScanPhaseResult {
@@ -166,9 +172,14 @@ export class MultiScanOrchestrator {
     const adapterResult = await adapterOrchestrator.scan(config);
     findings.push(...adapterResult.findings);
     for (const tool of adapterResult.toolsRun) {
+      // ScanOrchestrator's own convention: exitCode -1 means "not available"
+      // (isAvailable() returned false), not "ran and crashed." A tool simply
+      // not being installed in this environment isn't a scanner bug — only
+      // count an actual nonzero exit from a *running* tool as a failure.
+      const available = tool.exitCode !== -1;
       const success = tool.exitCode === 0;
-      toolsUsed.push({ name: tool.name, success, error: success ? undefined : tool.error });
-      if (!success) {
+      toolsUsed.push({ name: tool.name, success, available, error: success ? undefined : tool.error });
+      if (!success && available) {
         toolErrors.push(`${tool.name}: ${tool.error || `exited ${tool.exitCode}`}`);
       }
     }
@@ -178,14 +189,19 @@ export class MultiScanOrchestrator {
     // via github/codeql-action in enhanced-security-scan.yml; this direct
     // CLI invocation is for local/library use when the codeql CLI is present.
     console.log('  🧠 Running CodeQL with high-noise queries...');
-    try {
-      const codeqlFindings = await this.runCodeQLHighNoise(config);
-      findings.push(...codeqlFindings);
-      toolsUsed.push({ name: 'codeql', success: true });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      toolsUsed.push({ name: 'codeql', success: false, error: message });
-      toolErrors.push(`codeql: ${message}`);
+    const codeqlAvailable = await this.isCodeQLAvailable();
+    if (!codeqlAvailable) {
+      toolsUsed.push({ name: 'codeql', success: false, available: false, error: 'codeql CLI not found' });
+    } else {
+      try {
+        const codeqlFindings = await this.runCodeQLHighNoise(config);
+        findings.push(...codeqlFindings);
+        toolsUsed.push({ name: 'codeql', success: true, available: true });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        toolsUsed.push({ name: 'codeql', success: false, available: true, error: message });
+        toolErrors.push(`codeql: ${message}`);
+      }
     }
 
     const duration = (Date.now() - startTime) / 1000;
@@ -325,6 +341,14 @@ export class MultiScanOrchestrator {
     }
   }
   
+  private async isCodeQLAvailable(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const proc = spawn('codeql', ['--version']);
+      proc.on('error', () => resolve(false));
+      proc.on('exit', (code) => resolve(code === 0));
+    });
+  }
+
   /**
    * Run CodeQL with high-noise queries
    */
@@ -674,7 +698,10 @@ export class MultiScanOrchestrator {
         name: tool.name,
         version: 'unknown',
         duration: phase.duration,
-        exitCode: tool.success ? 0 : 1,
+        // -1 for "not available" (consistent with ScanOrchestrator's own
+        // convention) so a caller can tell "not installed here" apart from
+        // "installed and crashed" instead of treating both as exitCode 1.
+        exitCode: tool.success ? 0 : tool.available === false ? -1 : 1,
         error: tool.error,
       }))
     );
