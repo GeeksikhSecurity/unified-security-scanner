@@ -1,0 +1,37 @@
+src/multi-scan-orchestrator.ts
+  s_b9734e13a69ea0::t_c4db9cbf2d963c 273-274,278,281,286,288,293,295,301
+  s_b9734e13a69ea0::t_f5fd0a94cd3ab0 223-224,229,234,236,240
+  s_b9734e13a69ea0::t_1c0e565b5154b7 668-672,674,677-678
+  s_b9734e13a69ea0::t_2713cac27849fa 147,169-171,184,186-188
+  s_b9734e13a69ea0::t_ca064f56f3d156 50-55,60-65
+  s_b9734e13a69ea0::t_5990e6f712f2bc 552-557,565-570
+src/cli.ts
+  s_b9734e13a69ea0::t_6bc95cc220f7b3 100-114
+src/orchestrator/scanner.ts
+  s_b9734e13a69ea0::t_34268532cdd5b8 73-79
+src/analyzers/hardcoded-secrets.ts
+  s_b9734e13a69ea0::t_a847f0e6bc4aa9 97
+  s_b9734e13a69ea0::t_9ac64073cd2d38 101,107,119-123
+  s_b9734e13a69ea0::t_b9f015b1e95b0e 149-157
+src/fp-reducer/rule-engine.ts
+  s_b9734e13a69ea0::t_9b4d2a873413bf 199-206
+src/adapters/truffleHog.ts
+  s_b9734e13a69ea0::t_f279eb83312b9f 28-34,38-44
+  s_b9734e13a69ea0::t_d1b6055a825750 110-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bd638025bf3c311673a2b5dec6b4de14c80a0f43",
+  "prompts": {},
+  "sessions": {
+    "s_b9734e13a69ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85dab1ed-b1f4-493c-b53f-6808017b10b3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "GeeksikhSecurity <gurvinder@sayvainc.com>"
+    }
+  }
+}
