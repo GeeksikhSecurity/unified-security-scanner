@@ -130,9 +130,13 @@ export class SARIFProcessor {
             uri: this.relativePath(finding.file, sourceRoot) 
           },
           region: {
-            startLine: finding.line,
+            // SARIF requires startLine/endLine >= 1. Some findings (e.g.
+            // MaliciousPackageScanner's package.json-level matches) don't
+            // have a specific line and report 0 — clamp to 1 rather than
+            // emit a region GitHub's SARIF validator rejects outright.
+            startLine: Math.max(1, finding.line),
             startColumn: finding.column || 1,
-            endLine: finding.endLine || finding.line,
+            endLine: Math.max(1, finding.endLine || finding.line),
             endColumn: finding.endColumn,
             snippet: finding.snippet ? { text: finding.snippet } : undefined,
           },
